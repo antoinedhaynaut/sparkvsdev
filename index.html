@@ -505,7 +505,7 @@ table{width:100%;border-collapse:collapse}
         <tr><th>Scope</th><td>One script on one device</td><td>Several remediations and third-party systems in one workflow</td></tr>
         <tr><th>Logic</th><td>Whatever is hard-coded in the script</td><td>Conditions, branches and repeats</td></tr>
         <tr><th>Reboots</th><td>Execution ends at the reboot</td><td>Resumes automatically after the device restarts</td></tr>
-        <tr><th>Credentials for API calls</th><td class="danger">Stored in the script, in clear <span class="chip risk">Major security risk</span><br><span style="font-weight:400">Anyone with access to the script can read and reuse the credentials.</span></td><td>Stored securely in Nexthink, never in the script</td></tr>
+        <tr><th>Credentials for API calls</th><td class="danger">Stored in the script/on the device. Plain or encrypted - but together with the decryption method. <span class="chip risk">Major security risk</span><br><span style="font-weight:400">Anyone with access to the script can access the credentials, as the script does (E.g. elevated Azure credentials accessible with local admin privileges).Anyone with access to the script can read and reuse the credentials.</span></td><td>Stored securely in Nexthink, protected by a granular RBAC concept.</td></tr>
         <tr><th>Maintenance</th><td>Script code, owned by whoever wrote it</td><td>Graphical editor any IT engineer can read and change</td></tr>
       </tbody>
     </table>

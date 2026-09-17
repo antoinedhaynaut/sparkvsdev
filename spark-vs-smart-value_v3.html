@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scaling your AI agent worldwide: Nexthink Spark vs +SMART</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#10233A; --ink-soft:#4A5B70; --line:#D5DDE6; --paper:#F7F9FB; --panel:#EDF1F5;
+  --spark:#7A2E8E; --spark-soft:#EFE3F3; --flow:#B23A9E;
+  --smart:#4E8A2E; --smart-soft:#E4EFDC;
+  --cost:#C9711C; --cost-soft:#F7E8D6;
+  --risk:#B42318; --risk-soft:#FDECEA;
+  --stale:#9AA7B5;
+  --nav:290px;
+  --font:"Archivo","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.55}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+h1,h2,h3{font-stretch:75%;line-height:1.05;margin:0}
+h1{font-size:clamp(40px,5.4vw,76px);font-weight:800;letter-spacing:-.01em}
+h2{font-size:clamp(30px,3.6vw,46px);font-weight:750}
+h3{font-size:22px;font-weight:700;font-stretch:85%}
+p{margin:0}
+.lede{font-size:20px;color:var(--ink-soft);margin-top:16px}
+.muted{color:var(--ink-soft)}
+input:focus-visible,a:focus-visible{outline:3px solid var(--spark);outline-offset:3px}
+
+/* ---------- Side navigation ---------- */
+nav.side{position:fixed;inset:0 auto 0 0;width:var(--nav);background:transparent;padding:32px 0;display:flex;flex-direction:column;justify-content:center;z-index:10}
+nav.side .brand{padding:0 24px 24px;font-weight:750;font-stretch:80%;font-size:19px;line-height:1.15}
+nav.side .brand span{display:block;font-weight:400;font-size:13px;color:var(--ink-soft);font-stretch:100%;margin-top:4px}
+nav.side ol{list-style:none;margin:0;padding:0;position:relative}
+nav.side ol::before{content:"";position:absolute;left:30px;top:20px;bottom:20px;width:2px;background:var(--line)}
+nav.side a{display:grid;grid-template-columns:14px 1fr;gap:14px;align-items:center;padding:10px 20px 10px 24px;color:var(--ink-soft);text-decoration:none;font-size:15px;line-height:1.25;position:relative}
+nav.side a i{width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--line);position:relative;z-index:1;transition:all .2s}
+nav.side a:hover{color:var(--ink)}
+nav.side a.active{color:var(--ink);font-weight:650}
+nav.side a.active i{background:var(--spark);border-color:var(--spark)}
+nav.side .progress{margin:24px 24px 0 24px;height:4px;background:var(--panel);border-radius:2px;overflow:hidden}
+nav.side .progress b{display:block;height:100%;width:0;background:var(--spark)}
+
+main{margin-left:var(--nav)}
+.wrap{padding:0 clamp(24px,4vw,64px)}
+section{padding:64px 0;border-top:1px solid var(--line);scroll-margin-top:0}
+section:first-child{border-top:0}
+
+/* ---------- Hero: incident journey ---------- */
+.context{font-size:15px;color:var(--ink-soft);margin-bottom:22px}
+.journey{margin-top:40px;display:grid;grid-template-columns:170px repeat(5,1fr);gap:6px}
+.journey .hdr{font-weight:700;font-stretch:85%;font-size:16px;padding:0 4px 6px;border-bottom:2px solid var(--ink)}
+.journey .hdr small{display:block;font-weight:400;color:var(--ink-soft);font-stretch:100%;font-size:13px}
+.journey .who{font-weight:750;font-stretch:80%;font-size:21px;line-height:1.1;padding:14px 8px 0 0}
+.journey .who span{display:block;font-weight:400;font-size:14px;color:var(--ink-soft);font-stretch:100%;margin-top:4px}
+.step{padding:14px;border-radius:4px;font-size:15px;line-height:1.4;position:relative}
+.step .t{font-size:13px;color:var(--ink-soft);font-weight:600}
+.step b{display:block;font-size:16px;margin:2px 0 4px;font-stretch:90%}
+.step.s-row{background:var(--spark-soft)}
+.step.m-row{background:var(--smart-soft)}
+.step.m-row.bad{background:var(--risk-soft);color:var(--risk)}
+.step.m-row.bad .t{color:var(--risk)}
+.step.s-row.good{background:var(--spark);color:#fff}
+.step.s-row.good .t{color:#E9D5EF}
+.step.neutral{background:#fff!important;border:1px solid var(--line)}
+.window{margin-top:10px}
+.window .bar{position:relative;height:16px;background:var(--panel);border-radius:2px;overflow:hidden}
+.window .have{position:absolute;inset:0 auto 0 0}
+.window .gap{position:absolute;top:0;bottom:0;right:0;background:repeating-linear-gradient(135deg,#fff 0 5px,#C4CDD6 5px 7px)}
+.window .issue{position:absolute;top:-3px;bottom:-3px;width:3px;background:var(--risk)}
+.window .scale{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-soft);margin-top:2px}
+.window .key{font-size:12.5px;margin-top:4px;color:var(--ink-soft)}
+.window .key em{font-style:normal;color:var(--risk);font-weight:600}
+.outcome-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.chip{display:inline-block;font-size:12.5px;padding:1px 8px;border-radius:10px;font-weight:600;white-space:nowrap}
+.chip.r{background:#fff;color:var(--risk);border:1px solid #F1B8B2}
+.chip.up{background:var(--cost-soft);color:#8A4A0E}
+.chip.flat{background:var(--spark-soft);color:var(--spark)}
+.chip.risk{background:var(--risk);color:#fff;font-size:13px;padding:2px 10px}
+
+/* ---------- Architecture pipes ---------- */
+.pipes{margin-top:36px;display:grid;gap:26px}
+.pipe{display:grid;grid-template-columns:170px 1fr;gap:18px;align-items:center}
+.pipe .who{font-weight:750;font-stretch:80%;font-size:21px;line-height:1.1}
+.nodes{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:34px}
+.node{background:#fff;border:1px solid var(--line);padding:12px 14px;border-radius:3px;font-size:14.5px;line-height:1.3;position:relative}
+.node b{display:block;font-size:15.5px}
+.node:not(:last-child)::after{content:"";position:absolute;right:-27px;top:50%;width:18px;height:2px;background:var(--ink-soft)}
+.node:not(:last-child)::before{content:"";position:absolute;right:-28px;top:calc(50% - 5px);border:5px solid transparent;border-left-color:var(--ink-soft);border-right:0}
+.node.nx{border-color:#C9A6D4;background:var(--spark-soft)}
+.node.inh{border-style:dashed;border-color:var(--cost);background:var(--cost-soft)}
+.node.lag{background:repeating-linear-gradient(135deg,var(--cost-soft) 0 7px,#EFD6B8 7px 9px)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:14px;color:var(--ink-soft);margin-top:20px}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend i{display:inline-block;width:18px;height:12px;border:1px solid var(--line);background:#fff;border-radius:2px}
+
+/* ---------- Chart ---------- */
+.drivers{margin-top:32px}
+.drivers-intro{font-size:18px}
+.drivers-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:18px;border-top:2px solid var(--ink)}
+.drivers-grid>div{padding:16px 20px 4px 0}
+.drivers-grid>div+div{padding-left:20px;border-left:1px solid var(--line)}
+.drivers-grid h3{font-size:19px;margin-bottom:6px}
+.drivers-grid p{font-size:15.5px;color:var(--ink-soft)}
+.roi-key{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:14px;color:var(--ink-soft);margin:4px 0 6px}
+.roi-key span{display:inline-flex;align-items:center;gap:8px}
+.roi-key i{display:inline-block;width:18px;height:12px;border-radius:2px}
+@media (max-width:980px){.drivers-grid{grid-template-columns:1fr 1fr}.drivers-grid>div+div{border-left:0;padding-left:0}}
+.chart-shell{margin-top:32px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:22px 22px 14px}
+.controls{display:flex;flex-wrap:wrap;gap:10px 24px;margin-bottom:10px}
+.toggle{display:flex;gap:8px;align-items:center;font-size:15px;cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--ink);width:16px;height:16px}
+.sw{display:inline-block;width:26px;border-top:3px solid}
+.sw.dash{border-top-style:dashed}
+.chart-wrap{overflow-x:auto}
+svg#econ{width:100%;min-width:640px;height:auto;display:block}
+.slider-row{display:grid;grid-template-columns:90px 1fr 150px;gap:16px;align-items:center;margin:8px 0 6px;font-size:15px}
+input[type=range]{width:100%;accent-color:var(--spark)}
+input[type=range].cost{accent-color:var(--cost)}
+.slider-row strong{min-width:130px;text-align:right}
+.readout{display:grid;grid-template-columns:repeat(3,1fr);margin-top:16px;border-top:1px solid var(--line)}
+.readout>div{padding:14px 16px 6px 0}
+.readout>div+div{padding-left:16px;border-left:1px solid var(--line)}
+.readout .k{font-size:14px;color:var(--ink-soft)}
+.readout .v{font-size:30px;font-weight:750;font-stretch:80%;line-height:1.1}
+.disclaimer{font-size:13px;color:var(--ink-soft);margin-top:10px}
+
+table{width:100%;border-collapse:collapse}
+.ledger{margin-top:36px;font-size:16px}
+.ledger th,.ledger td{text-align:left;vertical-align:top;padding:16px 18px;border-bottom:1px solid var(--line)}
+.ledger thead th{font-stretch:85%;font-size:20px;border-bottom:2px solid var(--ink)}
+.ledger tbody th{font-weight:700;width:14%;font-stretch:85%;font-size:18px}
+.ledger td{width:43%}
+.ledger td.m{background:#FBFCF9} .ledger td.s{background:#FDFAFE}
+.ledger .chip{margin-left:6px}
+
+/* ---------- Live cases ---------- */
+.cases{margin-top:32px}
+.colhead,.case{display:grid;grid-template-columns:1fr 1.3fr 1fr}
+.colhead{font-weight:700;font-stretch:85%;font-size:17px}
+.colhead div{padding:0 20px 10px}
+.case{border-top:1px solid var(--line)}
+.case:last-child{border-bottom:1px solid var(--line)}
+.case>div{padding:22px 20px}
+.case .ask{font-size:21px;font-weight:650;font-stretch:88%;line-height:1.2}
+.case .ask small{display:block;font-size:14px;font-weight:500;color:var(--ink-soft);margin-top:10px;font-stretch:100%}
+.case .live{background:var(--spark-soft)}
+.case .stale{background:var(--panel);color:var(--ink-soft)}
+.case .fix{margin-top:10px;font-size:15px}
+.case .fix strong{color:var(--spark)}
+.callout{margin-top:32px;border-left:4px solid var(--spark);padding:4px 0 4px 20px}
+.callout h3{margin-bottom:6px}
+
+/* ---------- Flow ---------- */
+.flows{margin-top:32px;display:grid;gap:34px}
+.flowcase h3{margin-bottom:4px}
+.flowcase .why{margin:0 0 14px;color:var(--ink-soft);font-size:16px}
+.steps-scroll{overflow-x:auto;padding-bottom:4px}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);gap:30px}
+.steps li{position:relative;background:#fff;border:1px solid var(--line);padding:10px 12px;font-size:14.5px;line-height:1.3;border-radius:3px;display:flex;align-items:center}
+.steps li:not(:last-child)::after{content:"";position:absolute;right:-23px;top:50%;width:14px;height:2px;background:var(--ink-soft)}
+.steps li:not(:last-child)::before{content:"";position:absolute;right:-24px;top:calc(50% - 5px);border:5px solid transparent;border-left-color:var(--ink-soft);border-right:0}
+.steps li.api{border-color:#D6A9CC;background:#FBF3F9}
+.steps li.branch{border-style:dashed;border-color:var(--flow)}
+.steps li.reboot{background:var(--ink);color:#fff;border-color:var(--ink)}
+.compare{margin-top:32px;font-size:15.5px}
+.compare th,.compare td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.compare thead th{border-bottom:2px solid var(--ink);font-stretch:85%;font-size:17px}
+.compare tbody th{width:18%}
+.compare td{width:41%}
+.compare td.danger{background:var(--risk-soft);color:var(--risk);font-weight:600}
+.compare td.danger .chip{margin-left:8px;vertical-align:1px}
+
+@media (max-width:980px){
+  nav.side{position:sticky;top:0;inset:auto;width:auto;flex-direction:row;padding:0;background:var(--paper);border-bottom:1px solid var(--line);overflow-x:auto}
+  nav.side .brand,nav.side .progress{display:none}
+  nav.side ol{display:flex}
+  nav.side ol::before{display:none}
+  nav.side a{white-space:nowrap;padding:12px 14px;grid-template-columns:10px auto;gap:8px}
+  nav.side a i{width:10px;height:10px}
+  main{margin-left:0}
+  section{scroll-margin-top:50px}
+  .journey{grid-template-columns:repeat(5,minmax(170px,1fr));overflow-x:auto}
+  .journey .corner{display:none}
+  .journey .who{grid-column:1/-1;padding:18px 0 4px}
+  .pipe{grid-template-columns:1fr;gap:8px}
+  .nodes{overflow-x:auto;grid-auto-columns:minmax(150px,1fr)}
+  .colhead{display:none}
+  .case{grid-template-columns:1fr}
+  .case .live::before{content:"Spark sees, live";display:block;font-weight:700;color:var(--spark);margin-bottom:6px}
+  .case .stale::before{content:"+SMART sees, from the datalake";display:block;font-weight:700;color:var(--smart);margin-bottom:6px}
+  .readout{grid-template-columns:1fr}
+  .readout>div+div{border-left:0;padding-left:0;border-top:1px solid var(--line)}
+  .ledger,.ledger tbody,.ledger tr,.ledger td,.ledger th{display:block;width:100%!important}
+  .ledger thead{display:none}
+  .ledger td.m::before{content:"+SMART";font-weight:700;color:var(--smart);display:block}
+  .ledger td.s::before{content:"Spark";font-weight:700;color:var(--spark);display:block}
+  .compare-wrap{overflow-x:auto}
+}
+</style>
+</head>
+<body>
+
+<nav class="side" aria-label="Sections">
+  <div class="brand">Spark vs +SMART<span>Worldwide AI agent rollout</span></div>
+  <ol>
+    <li><a href="#journey"><i></i>The same issue, handled by two agents</a></li>
+    <li><a href="#architecture"><i></i>+SMART already runs on Nexthink, through a detour</a></li>
+    <li><a href="#economics"><i></i>Value grows with coverage. So does the cost of an in-house agent.</a></li>
+    <li><a href="#live"><i></i>Five issues only an agent on live data can resolve</a></li>
+    <li><a href="#flow"><i></i>Five use cases Flow unlocks for Spark</a></li>
+    <li><a href="#remote-actions"><i></i>What Flow brings to Remote Actions</a></li>
+  </ol>
+  <div class="progress"><b id="prog"></b></div>
+</nav>
+
+<main>
+
+<!-- ============ JOURNEY ============ -->
+<section id="journey">
+  <div class="wrap">
+    <div class="context">Nexthink Spark vs in-house AI agent: value points</div>
+    <h1>The same issue, handled by two agents</h1>
+    <p class="lede">Your +SMART agent cut L1 tickets by 70% on 100,000 devices in South America. That proves your employees adopt an AI agent. Here is what happens when an issue is still unfolding while the employee asks for help, and what it takes to bring the answer to the other 176,000 devices.</p>
+
+    <div class="journey" role="table" aria-label="Incident journey for each agent">
+      <div class="corner"></div>
+      <div class="hdr">1. Issue happens<small>10:00</small></div>
+      <div class="hdr">2. Employee asks<small>10:02</small></div>
+      <div class="hdr">3. Diagnostic<small>on the data available</small></div>
+      <div class="hdr">4. Remediation<small>what the agent does</small></div>
+      <div class="hdr">5. Outcome<small>fixed or not</small></div>
+
+      <!-- Spark -->
+      <div class="who" style="color:var(--spark)">Nexthink Spark<span>Live endpoint data</span></div>
+      <div class="s-row step neutral"><span class="t">10:00</span><b>Laptop freezes</b>A process starts saturating CPU and memory.</div>
+      <div class="s-row step"><span class="t">10:02</span><b>"My laptop became unusable"</b>Employee opens the chat.</div>
+      <div class="s-row step"><span class="t">10:02</span><b>Root cause found</b>Sees the process consuming 97% CPU since 10:00.
+        <div class="window" aria-hidden="true">
+          <div class="bar"><div class="have" style="width:100%;background:#D2A9DD"></div><div class="issue" style="left:94%"></div></div>
+          <div class="scale"><span>08:02</span><span>10:02</span></div>
+          <div class="key">Data up to now, <em>issue included</em></div>
+        </div>
+      </div>
+      <div class="s-row step"><span class="t">10:03</span><b>Targeted fix</b>Stops the process with the employee's consent. No restart, no lost work.</div>
+      <div class="s-row step good"><span class="t">10:04</span><b>Fixed and verified</b>Checks live that CPU and responsiveness are back to normal before closing.</div>
+
+      <!-- +SMART -->
+      <div class="who" style="color:var(--smart)">+SMART<span>Datalake, ≥ 1 h latency</span></div>
+      <div class="m-row step neutral"><span class="t">10:00</span><b>Laptop freezes</b>A process starts saturating CPU and memory.</div>
+      <div class="m-row step"><span class="t">10:02</span><b>"My laptop became unusable"</b>Employee opens the chat.</div>
+      <div class="m-row step bad"><span class="t">10:02</span><b>Nothing abnormal found</b>Latest data dates from 09:02 at best. The freeze isn't in it.
+        <div class="window" aria-hidden="true">
+          <div class="bar"><div class="have" style="width:50%;background:#B7D4A4"></div><div class="gap" style="left:50%"></div><div class="issue" style="left:94%"></div></div>
+          <div class="scale"><span>08:02</span><span>09:02</span><span>10:02</span></div>
+          <div class="key">Hatched: not in datalake yet, <em>issue falls here</em></div>
+        </div>
+      </div>
+      <div class="m-row step bad"><span class="t">10:05</span><b>Generic advice</b>Suggests a restart or runs a standard cleanup, without knowing the cause.</div>
+      <div class="m-row step bad"><span class="t">11:00+</span><b>Not confirmed</b>No data to check the result until the next ingestion.
+        <div class="outcome-chips"><span class="chip r">Work lost on restart</span><span class="chip r">Conversation abandoned</span><span class="chip r">Ticket opened</span><span class="chip r">Issue returns</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARCHITECTURE ============ -->
+<section id="architecture">
+  <div class="wrap">
+    <h2>+SMART already runs on Nexthink, through a detour</h2>
+    <p class="lede">About 70% of its datalake is Nexthink data, and it remediates by calling Nexthink remote actions through the API. Spark removes the copy, the delay and the in-house layer in between.</p>
+    <div class="pipes">
+      <div class="pipe">
+        <div class="who" style="color:var(--smart)">+SMART today</div>
+        <div class="nodes">
+          <div class="node nx"><b>Nexthink</b>Live data on every device</div>
+          <div class="node inh lag"><b>Export and ingest</b>≥ 1 h delay, cost per GB</div>
+          <div class="node inh"><b>Datalake</b>Storage grows with every device</div>
+          <div class="node inh"><b>+SMART agent</b>Built, hosted, maintained in-house</div>
+          <div class="node nx"><b>Nexthink remote actions</b>Called via API</div>
+        </div>
+      </div>
+      <div class="pipe">
+        <div class="who" style="color:var(--spark)">Nexthink Spark</div>
+        <div class="nodes">
+          <div class="node nx"><b>Nexthink live data</b>Already collected on your devices</div>
+          <div class="node nx"><b>Spark</b>Diagnoses and acts in the same platform</div>
+          <div class="node nx"><b>Remote actions and Flow</b>Multi-step, API-integrated, verified live</div>
+        </div>
+      </div>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span><i style="background:var(--spark-soft);border-color:#C9A6D4"></i>Nexthink, already in place</span>
+      <span><i style="background:var(--cost-soft);border:1px dashed var(--cost)"></i>In-house layer you build, run and scale</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ECONOMICS ============ -->
+<section id="economics">
+  <div class="wrap">
+    <h2>Value grows with coverage. So does the cost of an in-house agent.</h2>
+    <p class="lede">Costs come first, then value. Move each slider from today's footprint (100,000 devices in South America) to all 276,000 devices worldwide, and watch where each agent's curves bend.</p>
+
+    <div class="drivers">
+      <p class="drivers-intro">Spark's value line is steeper because it can address more incidents, requests and how-to questions per employee. That capacity depends on four things:</p>
+      <div class="drivers-grid">
+        <div><h3>Live or delayed data</h3><p>Issues happening now can only be diagnosed on live data. <a href="#live">See the live data use cases</a>.</p></div>
+        <div><h3>Remediation capacities</h3><p>Single scripts cover simple fixes; Flow covers multi-step requests across systems. <a href="#flow">See the Flow use cases</a>.</p></div>
+        <div><h3>Resolution rate</h3><p>A diagnosis on the right data leads to the right fix, verified before the conversation ends.</p></div>
+        <div><h3>Agent efficiency</h3><p>Shorter discussions: the agent finds the cause itself instead of questioning the employee.</p></div>
+      </div>
+    </div>
+
+    <div class="chart-shell">
+      <div class="controls" role="group" aria-label="Show or hide lines">
+        <label class="toggle"><input type="checkbox" data-line="smartCost" checked><span class="sw" style="border-color:var(--cost)"></span>+SMART cost</label>
+        <label class="toggle"><input type="checkbox" data-line="sparkCost" checked><span class="sw dash" style="border-color:var(--cost)"></span>Spark cost</label>
+        <label class="toggle"><input type="checkbox" data-line="smart" checked><span class="sw" style="border-color:var(--smart)"></span>+SMART value</label>
+        <label class="toggle"><input type="checkbox" data-line="spark" checked><span class="sw" style="border-color:var(--spark)"></span>Spark value</label>
+        <label class="toggle"><input type="checkbox" data-line="sparkFlow" checked><span class="sw dash" style="border-color:var(--flow)"></span>Spark value, boosted with Flow</label>
+      </div>
+      <div class="roi-key" aria-hidden="true">
+        <span><i style="background:rgba(78,138,46,.55)"></i>+SMART ROI</span>
+        <span><i style="background:rgba(122,46,142,.18)"></i>Spark ROI</span>
+        <span><i style="background:rgba(178,58,158,.18)"></i>Extra ROI with Flow</span>
+        <span><i style="background:rgba(180,35,24,.2)"></i>Costs above value</span>
+      </div>
+      <div class="chart-wrap"><svg id="econ" viewBox="0 0 1400 520" role="img" aria-label="Illustrative value and cost curves as the AI agent is rolled out worldwide"></svg></div>
+      <div class="slider-row">
+        <label for="covCost"><span class="sw" style="border-color:var(--cost);margin-right:8px;vertical-align:4px"></span>Costs</label>
+        <input id="covCost" class="cost" type="range" min="0" max="100" value="0" step="1">
+        <strong id="costLabel">100,000 devices</strong>
+      </div>
+      <div class="slider-row">
+        <label for="covVal"><span class="sw" style="border-color:var(--spark);margin-right:8px;vertical-align:4px"></span>Values</label>
+        <input id="covVal" type="range" min="0" max="100" value="0" step="1">
+        <strong id="valLabel">100,000 devices</strong>
+      </div>
+      <div class="readout" aria-live="polite">
+        <div><div class="k">+SMART net value</div><div class="v" id="rSmart" style="color:var(--smart)">0</div></div>
+        <div><div class="k">Spark net value</div><div class="v" id="rSpark" style="color:var(--spark)">0</div></div>
+        <div><div class="k">Spark + Flow net value</div><div class="v" id="rFlow" style="color:var(--flow)">0</div></div>
+      </div>
+      <p class="disclaimer">Net values are read where both sliders overlap. Illustrative index, not a quote. Curve shapes follow each cost model; +SMART run costs aren't shared yet, so slopes stay indicative.</p>
+    </div>
+
+    <table class="ledger">
+      <thead><tr><th></th><th style="color:var(--smart)">+SMART, in-house</th><th style="color:var(--spark)">Nexthink Spark</th></tr></thead>
+      <tbody>
+        <tr><th>Build</th>
+          <td class="m">Development, architecture, language management, improvement mechanisms. Repeated for each new region's languages and local applications. <span class="chip up">grows with scope</span></td>
+          <td class="s">Spark foundation delivered by professional services. <span class="chip flat">fixed price</span></td></tr>
+        <tr><th>Run</th>
+          <td class="m">Maintenance, datalake ingestion and storage, architecture scaling, AI cost per conversation. Going from 100,000 to 276,000 devices multiplies data volume by almost 3. <span class="chip up">grows with every device</span></td>
+          <td class="s">One price per endpoint, no data to ingest or store: Spark reads live Nexthink data already on your devices. <span class="chip flat">predictable</span></td></tr>
+        <tr><th>Evolve</th>
+          <td class="m">New remediations, model updates and security fixes are your team's backlog, competing with other priorities. <span class="chip up">your team's time</span></td>
+          <td class="s">New remediation actions, agent capabilities and learning mechanisms shipped every 5 weeks. <span class="chip flat">included in endpoint price</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ LIVE DATA USE CASES ============ -->
+<section id="live">
+  <div class="wrap">
+    <h2>Five issues only an agent on live data can resolve</h2>
+    <p class="lede">Disk cleanup and device restarts work fine on delayed data: the problem is still there an hour later. The next tier of L1 tickets is about what is going wrong right now.</p>
+
+    <div class="cases">
+      <div class="colhead"><div>The employee says</div><div style="color:var(--spark)">Spark sees, live</div><div style="color:var(--smart)">+SMART sees, from the datalake</div></div>
+
+      <div class="case">
+        <div class="ask">"My virtual desktop is lagging right now."<small>VDI session, during work</small></div>
+        <div class="live"><p>This session's current latency, logon and responsiveness, the load on its host and the network path, through VDI Experience.</p><p class="fix"><strong>Fix:</strong> resets the stuck client or session; if the host itself is saturated, hands L2 a ready diagnosis instead of a vague ticket.</p></div>
+        <div class="stale"><p>The session degraded after the last ingestion. The agent sees a normal session and can only suggest reconnecting.</p></div>
+      </div>
+
+      <div class="case">
+        <div class="ask">"My laptop became unusable five minutes ago."<small>Sudden performance drop</small></div>
+        <div class="live"><p>The process that started minutes ago and saturates CPU, memory or disk: a runaway browser tab, an indexing job, a stuck update.</p><p class="fix"><strong>Fix:</strong> stops or restarts it with the employee's consent, shows the device back to normal.</p></div>
+        <div class="stale"><p>A healthy device from an hour ago. Default answer: restart, losing unsaved work, without knowing the cause.</p></div>
+      </div>
+
+      <div class="case">
+        <div class="ask">"I just arrived at the office and VPN won't connect."<small>Network change, travel, hotel Wi-Fi</small></div>
+        <div class="live"><p>The network the device is on now, DNS resolution, VPN client state and certificate validity.</p><p class="fix"><strong>Fix:</strong> resets the adapter or DNS cache, restarts the VPN client, confirms the connection.</p></div>
+        <div class="stale"><p>The device still connected from home an hour ago. The new network doesn't exist in its data.</p></div>
+      </div>
+
+      <div class="case">
+        <div class="ask">"My business app just crashed and won't reopen."<small>Application failure after an update</small></div>
+        <div class="live"><p>The crash event seconds ago, the faulting module, and the update that landed this morning, through Application Experience.</p><p class="fix"><strong>Fix:</strong> clears the app cache or runs a repair, then relaunches and checks for a new crash.</p></div>
+        <div class="stale"><p>No crash recorded yet. The agent may answer that the app is running normally.</p></div>
+      </div>
+
+      <div class="case">
+        <div class="ask">"Outlook keeps asking for my password since I changed it."<small>Sign-in loop after password change</small></div>
+        <div class="live"><p>The repeated authentication prompts now, stale cached credentials and the account state.</p><p class="fix"><strong>Fix:</strong> clears cached credentials, restarts Outlook, confirms mailbox sync resumed.</p></div>
+        <div class="stale"><p>The password change happened after the last sync. The loop is invisible, so a ticket to the service desk.</p></div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <h3>The hidden cost of latency: no proof the fix worked</h3>
+      <p>Even on simple use cases, an agent on delayed data can't confirm its own fix inside the conversation. Spark checks the outcome on live data before closing, so "resolved" means resolved, not "ticket avoided until the employee calls back."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FLOW USE CASES ============ -->
+<section id="flow">
+  <div class="wrap">
+    <h2>Five use cases Flow unlocks for Spark</h2>
+    <p class="lede">A remote action is a single script on a device. Flow lets Spark chain actions, call your other systems, branch on conditions, retry and pick up again after a reboot, so whole requests are resolved end to end instead of handed to a person halfway. +SMART remediates through remote actions today, so the limits described in the next section apply to your agent today.</p>
+
+    <div class="legend" aria-hidden="true">
+      <span><i></i>Action on the device</span>
+      <span><i style="background:#FBF3F9;border-color:#D6A9CC"></i>API call, credentials kept in Nexthink</span>
+      <span><i style="border:1px dashed var(--flow)"></i>Condition, branch or repeat</span>
+      <span><i style="background:var(--ink);border-color:var(--ink)"></i>Reboot, then Flow resumes</span>
+    </div>
+
+    <div class="flows">
+      <div class="flowcase">
+        <h3>1. Software request with licence check and approval</h3>
+        <p class="why">"I need Visio." Today a service request that waits days for approval and licence allocation.</p>
+        <div class="steps-scroll"><ol class="steps">
+          <li class="api">Check licence pool in the SaaS admin API</li>
+          <li class="branch">No seat free: reclaim an unused licence</li>
+          <li class="api">Request manager approval in the ITSM tool</li>
+          <li>Install the software</li>
+          <li>Verify it launches</li>
+          <li class="api">Close the request automatically</li>
+        </ol></div>
+      </div>
+
+      <div class="flowcase">
+        <h3>2. Account locked or lost MFA device</h3>
+        <p class="why">"I'm locked out and got a new phone." One of the highest-volume L1 calls, impossible with a device-only script.</p>
+        <div class="steps-scroll"><ol class="steps">
+          <li class="api">Check account status in Entra ID via Graph API</li>
+          <li class="branch">Locked: unlock the account</li>
+          <li class="branch">MFA device lost: verify identity, issue a temporary access pass</li>
+          <li class="api">Log the action in the ITSM tool</li>
+          <li>Confirm sign-in works</li>
+        </ol></div>
+      </div>
+
+      <div class="flowcase">
+        <h3>3. Deep performance fix that needs a reboot</h3>
+        <p class="why">"My PC has been slow for days." A remote action stops at the reboot; Flow carries on.</p>
+        <div class="steps-scroll"><ol class="steps">
+          <li>Clean temp files and caches</li>
+          <li>Repair system files</li>
+          <li class="reboot">Reboot at a time the employee picks</li>
+          <li>Resume: measure boot time and responsiveness</li>
+          <li class="branch">Still degraded: open an L2 ticket with the full diagnosis</li>
+        </ol></div>
+      </div>
+
+      <div class="flowcase">
+        <h3>4. Device non-compliant, email access blocked</h3>
+        <p class="why">"I can't access my email on this laptop." Conditional access blocks work until a patch installs.</p>
+        <div class="steps-scroll"><ol class="steps">
+          <li class="api">Read compliance state in Intune via Graph API</li>
+          <li class="api">Trigger a device sync</li>
+          <li class="branch">Repeat until the update installs, up to a limit</li>
+          <li class="reboot">Reboot, then resume</li>
+          <li class="api">Confirm compliant, access restored</li>
+        </ol></div>
+      </div>
+
+      <div class="flowcase">
+        <h3>5. Failing battery replaced before it strands the employee</h3>
+        <p class="why">"My laptop dies after an hour." Diagnosis, warranty and ordering usually take three teams.</p>
+        <div class="steps-scroll"><ol class="steps">
+          <li>Read battery health and wear</li>
+          <li class="api">Check warranty with the hardware vendor's API</li>
+          <li class="branch">Under warranty: order replacement; otherwise route to procurement</li>
+          <li class="api">Create the hardware request with serial and diagnosis</li>
+          <li>Tell the employee when and where to swap it</li>
+        </ol></div>
+      </div>
+    </div>
+
+    
+  </div>
+</section>
+
+<!-- ============ REMOTE ACTIONS ============ -->
+<section id="remote-actions">
+  <div class="wrap">
+    <h2>What Flow brings to Remote Actions</h2>
+    <p class="lede">+SMART remediates by calling Nexthink remote actions through the API. Here is what changes when Spark uses Flow on top of them.</p>
+    <div class="compare-wrap">
+    <table class="compare">
+      <thead><tr><th></th><th>Remote action, as +SMART uses today</th><th>Flow, used by Spark</th></tr></thead>
+      <tbody>
+        <tr><th>Scope</th><td>One script on one device</td><td>Several remediations and third-party systems in one workflow</td></tr>
+        <tr><th>Logic</th><td>Whatever is hard-coded in the script</td><td>Conditions, branches and repeats</td></tr>
+        <tr><th>Reboots</th><td>Execution ends at the reboot</td><td>Resumes automatically after the device restarts</td></tr>
+        <tr><th>Credentials for API calls</th><td class="danger">Stored in the script, in clear <span class="chip risk">Major security risk</span><br><span style="font-weight:400">Anyone with access to the script can read and reuse the credentials.</span></td><td>Stored securely in Nexthink, never in the script</td></tr>
+        <tr><th>Maintenance</th><td>Script code, owned by whoever wrote it</td><td>Graphical editor any IT engineer can read and change</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  const svg=document.getElementById('econ');
+  const NS='http://www.w3.org/2000/svg';
+  const W=1400,H=520,L=70,R=210,T=30,B=60;
+  const pw=W-L-R, ph=H-T-B, YMAX=260;
+  const X=x=>L+x/100*pw, Y=y=>T+ph-(y/YMAX)*ph;
+  const f={
+    smartCost:x=>x<40?6+1.1*x:50+0.95*(x-40),
+    sparkCost:x=>x<40?38:38+0.45*(x-40),
+    smart:x=>1.45*x,
+    spark:x=>1.75*x,
+    sparkFlow:x=>x<40?1.75*x:70+2.6*(x-40)
+  };
+  const isCost=k=>k.endsWith('Cost');
+  const style={smart:{c:'var(--smart)',d:''},spark:{c:'var(--spark)',d:''},sparkFlow:{c:'var(--flow)',d:'9 7'},smartCost:{c:'var(--cost)',d:''},sparkCost:{c:'var(--cost)',d:'9 7'}};
+  const el=(n,a)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e};
+  for(let v=0;v<=YMAX;v+=50)el('line',{x1:L,x2:L+pw,y1:Y(v),y2:Y(v),stroke:'#E6EBF0'});
+  el('line',{x1:L,x2:L+pw,y1:Y(0),y2:Y(0),stroke:'#10233A','stroke-width':1.5});
+  el('line',{x1:L,x2:L,y1:T,y2:Y(0),stroke:'#10233A','stroke-width':1.5});
+  el('text',{x:L-30,y:T+ph/2,'font-size':15,fill:'#4A5B70','text-anchor':'middle',transform:`rotate(-90 ${L-30} ${T+ph/2})`}).textContent='Value and cost (index)';
+  [[0,'Today: 100,000 devices (South America)','start'],[40,'Other regions go live','middle'],[100,'276,000 devices','end']].forEach(([x,t,an])=>{
+    el('text',{x:X(x),y:H-28,'font-size':15,fill:'#4A5B70','text-anchor':an}).textContent=t;
+  });
+  el('line',{x1:X(40),x2:X(40),y1:T,y2:Y(0),stroke:'#9AA7B5','stroke-dasharray':'3 5'});
+
+  const areas=[
+    {v:'spark',c:'sparkCost',pos:'rgba(122,46,142,.18)'},
+    {v:'sparkFlow',c:'spark',pos:'rgba(178,58,158,.16)',noNeg:true},
+    {v:'smart',c:'smartCost',pos:'rgba(78,138,46,.5)'}
+  ];
+  areas.forEach(a=>{a.p=el('path',{fill:a.pos});a.n=el('path',{fill:'rgba(180,35,24,.2)'});});
+  const band=(up,low,to)=>{if(to<=0)return '';let d='';for(let x=0;x<=to;x++)d+=(x?'L':'M')+X(x).toFixed(1)+' '+Y(up(x)).toFixed(1);
+    for(let x=to;x>=0;x--)d+='L'+X(x).toFixed(1)+' '+Y(low(x)).toFixed(1);return d+'Z'};
+
+  const lines={},labels={},dots={},leaders={};
+  const labelText={smart:'+SMART value',spark:'Spark value',sparkFlow:'Spark + Flow value',smartCost:'+SMART cost',sparkCost:'Spark cost'};
+  for(const k in f){
+    leaders[k]=el('line',{stroke:style[k].c,'stroke-width':1,'stroke-dasharray':'2 4',opacity:.6});
+    lines[k]=el('path',{fill:'none',stroke:style[k].c,'stroke-width':3.2,'stroke-dasharray':style[k].d,'stroke-linecap':'round'});
+  }
+  for(const k in f){
+    dots[k]=el('circle',{r:5,fill:'#fff',stroke:style[k].c,'stroke-width':2.5});
+    labels[k]=el('text',{'font-size':16,'font-weight':650,fill:style[k].c,'dominant-baseline':'middle'});labels[k].textContent=labelText[k];
+  }
+  const pathFor=(fn,to)=>{let d='';for(let x=0;x<=to;x++)d+=(x?'L':'M')+X(x).toFixed(1)+' '+Y(fn(x)).toFixed(1);return d};
+  const vis=k=>document.querySelector(`[data-line="${k}"]`).checked;
+  const sCost=document.getElementById('covCost'), sVal=document.getElementById('covVal');
+  const dev=v=>Math.round(100000+v/100*176000).toLocaleString('en-US')+' devices';
+
+  function render(){
+    const cTo=+sCost.value, vTo=+sVal.value, both=Math.min(cTo,vTo);
+    document.getElementById('costLabel').textContent=dev(cTo);
+    document.getElementById('valLabel').textContent=dev(vTo);
+    areas.forEach(a=>{
+      const on=vis(a.v)&&vis(a.c);
+      const v=f[a.v],c=f[a.c];
+      const to=a.noNeg?vTo:both;
+      a.p.setAttribute('d',band(v,x=>Math.min(v(x),c(x)),to));
+      a.n.setAttribute('d',band(x=>Math.max(v(x),c(x)),v,to));
+      a.p.style.display=on?'':'none'; a.n.style.display=(on&&!a.noNeg)?'':'none';
+    });
+    const shown=[];
+    for(const k in f){
+      const to=isCost(k)?cTo:vTo;
+      const on=vis(k)&&to>0;
+      lines[k].setAttribute('d',pathFor(f[k],to));
+      dots[k].setAttribute('cx',X(to));dots[k].setAttribute('cy',Y(f[k](to)));
+      [lines[k],labels[k],dots[k],leaders[k]].forEach(e=>e.style.display=on?'':'none');
+      if(on)shown.push({k,to,y:Y(f[k](to))});
+    }
+    // labels live in the right margin, never over the plot; a faint leader links them to the line end
+    shown.sort((a,b)=>a.y-b.y);
+    for(let i=1;i<shown.length;i++)if(shown[i].y-shown[i-1].y<22)shown[i].y=shown[i-1].y+22;
+    const over=shown.length?shown[shown.length-1].y-(Y(0)-10):0;
+    if(over>0)shown.forEach(o=>o.y-=over);
+    const lx=X(100)+16;
+    shown.forEach(o=>{
+      labels[o.k].setAttribute('x',lx);labels[o.k].setAttribute('y',o.y);
+      const ld=leaders[o.k];
+      ld.setAttribute('x1',X(o.to)+6);ld.setAttribute('y1',Y(f[o.k](o.to)));ld.setAttribute('x2',lx-4);ld.setAttribute('y2',o.y);
+      ld.style.display=(o.to<100)?'':'none';
+    });
+    const net=(v,c)=>Math.round(f[v](both)-f[c](both)), fmt=n=>(n>0?'+':'')+n;
+    const ready=both>0;
+    document.getElementById('rSmart').textContent=ready?fmt(net('smart','smartCost')):'–';
+    document.getElementById('rSpark').textContent=ready?fmt(net('spark','sparkCost')):'–';
+    document.getElementById('rFlow').textContent=ready?fmt(net('sparkFlow','sparkCost')):'–';
+  }
+  let animating=false;
+  [sCost,sVal].forEach(sl=>sl.addEventListener('input',()=>{animating=false;render();}));
+  document.querySelectorAll('[data-line]').forEach(c=>c.addEventListener('change',render));
+  render();
+
+  // two-step animation: costs first, then values
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function tween(slider,dur){
+    return new Promise(res=>{
+      const start=performance.now();
+      (function step(now){
+        if(!animating)return res();
+        const t=Math.min(1,(now-start)/dur),e=1-Math.pow(1-t,3);
+        slider.value=Math.round(e*100);render();
+        if(t<1)requestAnimationFrame(step);else res();
+      })(start);
+    });
+  }
+  async function play(){
+    if(reduce){sCost.value=100;sVal.value=100;render();return;}
+    animating=true;
+    await tween(sCost,2200);
+    if(!animating)return;
+    await new Promise(r=>setTimeout(r,500));
+    if(!animating)return;
+    await tween(sVal,2600);
+    animating=false;
+  }
+  new IntersectionObserver((ents,obs)=>{ents.forEach(en=>{if(en.isIntersecting){obs.disconnect();play();}})},{threshold:.35})
+    .observe(document.querySelector('.chart-shell'));
+
+  // side navigation: active section + progress
+  const links=[...document.querySelectorAll('nav.side a')];
+  const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+  function onScroll(){
+    const y=window.scrollY+window.innerHeight*0.3;
+    let idx=0; secs.forEach((s,i)=>{if(s.offsetTop<=y)idx=i});
+    if(window.innerHeight+window.scrollY>=document.body.scrollHeight-4)idx=secs.length-1;
+    links.forEach((a,i)=>{a.classList.toggle('active',i===idx); if(i===idx)a.setAttribute('aria-current','true'); else a.removeAttribute('aria-current');});
+    const max=document.body.scrollHeight-window.innerHeight;
+    document.getElementById('prog').style.width=(max>0?window.scrollY/max*100:0)+'%';
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll);onScroll();
+})();
+</script>
+</body>
+</html>
